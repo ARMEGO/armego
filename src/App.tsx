@@ -1,35 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "primereact/resources/themes/lara-light-indigo/theme.css"; //theme
+import "primereact/resources/primereact.min.css"; //core css
+import "primeicons/primeicons.css"; //icons
+import { Login, Home, Reviews, ReviewRequests } from "./pages";
+import { Route, Router, useLocation } from "wouter";
+import { Path } from "./routes";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
+import { Header } from "./components";
+import { useEffect } from "react";
+import { signOut } from "./store/userSlice";
 
 function App() {
-  const [count, setCount] = useState(0)
+	const user = useAppSelector((state) => state.user);
+	const dispatch = useAppDispatch();
+	const [_location, setLocation] = useLocation();
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+	useEffect(() => {
+		setLocation(user.token ? Path.HOME : Path.LOGIN);
+	}, [user.token]);
+
+	const handleLogOut = () => {
+		dispatch(signOut());
+	};
+
+	const isAdmin = user.username === "admin";
+
+	return (
+		<>
+			{user.token && (
+				<Header username={user.username} onLogOut={handleLogOut} />
+			)}
+			<Router>
+				<Route path={Path.LOGIN} component={Login} />
+				<Route path={Path.HOME} component={isAdmin ? Home : ReviewRequests} />
+				{isAdmin && <Route path={Path.EMPLOYEE} component={Reviews} />}
+			</Router>
+		</>
+	);
 }
 
-export default App
+export default App;
