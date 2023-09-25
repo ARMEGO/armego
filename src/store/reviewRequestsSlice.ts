@@ -9,7 +9,8 @@ export const reviewRequestsSlice = createSlice({
 	name: "reviewRequests",
 	initialState,
 	reducers: {
-		addReviews: (state, action: PayloadAction<IGiveReview[]>) => action.payload,
+		addReviews: (_state, action: PayloadAction<IGiveReview[]>) =>
+			action.payload,
 		addReview: (state, action: PayloadAction<IGiveReview>) => {
 			const review = action.payload;
 			review.id = (Math.random() + 1).toString(36).substring(7);

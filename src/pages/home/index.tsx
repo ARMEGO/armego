@@ -1,11 +1,9 @@
-import { randomString } from "../../common";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "primereact/button";
 import { Rating } from "primereact/rating";
 import { InputText } from "primereact/inputtext";
 import { Dialog } from "../../components";
 import { Link } from "wouter";
-import { Path } from "../../routes";
 import { styled } from "styled-components";
 import { IEmployee } from "../../entity/employee";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -15,6 +13,7 @@ import {
 	removeEmployee,
 	updateEmployee,
 } from "../../store/employeesSlice";
+import { deleteById, endpoint, getData, insertData } from "../../api";
 
 const Main = styled.main`
     padding: 16px;
@@ -30,28 +29,20 @@ const emptyEmployee = {
 	rating: 0,
 };
 
-const dummyData = () => {
-	let dummy = [];
-	for (let i = 0; i < 50; i++) {
-		dummy.push({
-			id: randomString(),
-			username: randomString(),
-			rating: 2 + i,
-			reviews: 3 + i,
-		});
-	}
-	return dummy;
-};
 function Home() {
 	const employees = useAppSelector((state) => state.employees);
 	const [employee, setEmployee] = useState<IEmployee>(emptyEmployee);
 	const [deleteEmployeeDialog, setDeleteEmployeeDialog] = useState(false);
 	const dispatch = useAppDispatch();
 
-	useEffect(() => {
-		const dummyUsers = dummyData();
-		dispatch(addEmployees(dummyUsers));
+	const fetchEmployees = useCallback(async () => {
+		const response: IEmployee[] = await getData(endpoint.employees);
+		dispatch(addEmployees(response));
 	}, []);
+
+	useEffect(() => {
+		fetchEmployees();
+	}, [fetchEmployees]);
 
 	const hideDeleteEmployeeDialog = () => {
 		setDeleteEmployeeDialog(false);
@@ -66,18 +57,22 @@ function Home() {
 		setDeleteEmployeeDialog(true);
 	};
 
-	const confirmDeleteEmployee = () => {
+	const confirmDeleteEmployee = async () => {
 		//  reomve from array
+		const response = await deleteById(endpoint.employees, employee.id);
+		console.log(response);
 		dispatch(removeEmployee(employee.id));
 		setDeleteEmployeeDialog(false);
 	};
 
-	const handleSubmit = (employee: IEmployee) => {
+	const handleSubmit = async (employee: IEmployee) => {
 		// if new employee, add
-		// if existing employee, update
-		dispatch(
-			employee.id === "" ? addEmployee(employee) : updateEmployee(employee),
-		);
+		if (employee.id === "") {
+			const response = await insertData(endpoint.employees, employee);
+			console.log(response);
+			dispatch(addEmployee(employee));
+		} // else existing employee, update
+		else dispatch(updateEmployee(employee));
 	};
 
 	return (

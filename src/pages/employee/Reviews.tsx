@@ -1,5 +1,5 @@
 import { randomString } from "../../common";
-import { useState, useEffect, FC } from "react";
+import { useState, useEffect, FC, useCallback } from "react";
 import { Button } from "primereact/button";
 import { Rating } from "primereact/rating";
 import { styled } from "styled-components";
@@ -14,6 +14,7 @@ import {
 	updateEmployeeReview,
 } from "../../store/employeeReviewsSlice";
 import { MultiSelect } from "primereact/multiselect";
+import { endpoint, getDataById, insertData, updateDataById } from "../../api";
 
 const Main = styled.main`
     padding: 16px;
@@ -66,9 +67,8 @@ type IProps = {
 };
 
 const Reviews: FC<IProps> = ({ params }) => {
-	const employee = useAppSelector((state) =>
-		selectEmployeeById(state, params.id.split("%")[0]),
-	);
+	const id = params.id.split("%")[0];
+	const employee = useAppSelector((state) => selectEmployeeById(state, id));
 	const employees = useAppSelector((state) =>
 		state.employees.filter((emp) => emp.id !== employee?.id),
 	);
@@ -81,10 +81,18 @@ const Reviews: FC<IProps> = ({ params }) => {
 	const [reviewDialog, setReviewDialog] = useState(false);
 
 	const dispatch = useAppDispatch();
+
+	const fetchReviews = useCallback(async () => {
+		const response: IReview[] = await getDataById(
+			endpoint.employees,
+			employee?.username,
+		);
+		dispatch(addEmployeeReviews({ employee, reviews: response || [] }));
+	}, []);
+
 	useEffect(() => {
-		const dummyReviews = dummyData();
-		dispatch(addEmployeeReviews({ employee, reviews: dummyReviews }));
-	}, [employee]);
+		fetchReviews();
+	}, [fetchReviews]);
 
 	const hideReviewDialog = () => {
 		setReviewDialog(false);
@@ -95,15 +103,29 @@ const Reviews: FC<IProps> = ({ params }) => {
 		setReviewDialog(true);
 	};
 
-	const handleSubmit = (review: IReview) => {
+	const handleSubmit = async (review: IReview) => {
 		// if new review, add
 		// if existing review, update
 		review.reviewedBy = user.username;
-		dispatch(
-			review.id === ""
-				? addEmployeeReview(review)
-				: updateEmployeeReview(review),
-		);
+		if (review.id === "") {
+			const response = await insertData(endpoint.feedback, {
+				...review,
+				owner: employee?.username,
+				reviewed_by: user.username,
+			});
+			console.log(response);
+
+			dispatch(addEmployeeReview(review));
+		} else {
+			const response = await updateDataById(endpoint.feedback, review.id, {
+				...review,
+				owner: employee?.username,
+				reviewed_by: user.username,
+			});
+			console.log(response);
+
+			dispatch(updateEmployeeReview(review));
+		}
 	};
 
 	const askReview = () => {
