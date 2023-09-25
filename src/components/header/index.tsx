@@ -16,6 +16,11 @@ const StyledHeader = styled.header`
 	background: #dadada;
 `;
 
+/**
+ * Basic header
+ * @param props
+ * @returns header with title and log out option
+ */
 function Header(props: IProps) {
 	return (
 		<StyledHeader>

@@ -29,12 +29,17 @@ const emptyEmployee = {
 	rating: 0,
 };
 
+/**
+ * List emplyees. Has option to add, update, remove employee.
+ * @returns admin landing page
+ */
 function Home() {
 	const employees = useAppSelector((state) => state.employees);
 	const [employee, setEmployee] = useState<IEmployee>(emptyEmployee);
 	const [deleteEmployeeDialog, setDeleteEmployeeDialog] = useState(false);
 	const dispatch = useAppDispatch();
 
+	// get lsit of employees from API
 	const fetchEmployees = useCallback(async () => {
 		const response: IEmployee[] = await getData(endpoint.employees);
 		dispatch(addEmployees(response));
@@ -60,9 +65,11 @@ function Home() {
 	const confirmDeleteEmployee = async () => {
 		//  reomve from array
 		const response = await deleteById(endpoint.employees, employee.id);
-		console.log(response);
-		dispatch(removeEmployee(employee.id));
-		setDeleteEmployeeDialog(false);
+		if (response !== null) {
+			dispatch(removeEmployee(employee.id));
+			setDeleteEmployeeDialog(false);
+		}
+		// TODO: display useful message from response
 	};
 
 	const handleSubmit = async (employee: IEmployee) => {

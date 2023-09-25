@@ -2,6 +2,9 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { ReactElement } from "react";
 
+/**
+ * Props for dialog
+ */
 type IDialogProps = {
 	isOpen: boolean;
 	headerLabel: string;
@@ -12,6 +15,11 @@ type IDialogProps = {
 	children?: ReactElement;
 };
 
+/**
+ * Custom dialog with footer and actions
+ * @param props IDialogProps
+ * @returns dialog
+ */
 const CustomDialog = (props: IDialogProps) => {
 	const {
 		isOpen,

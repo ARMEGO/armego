@@ -15,11 +15,20 @@ export const userSlice = createSlice({
 	name: "user",
 	initialState,
 	reducers: {
+		/**
+		 * Add user
+		 * @param state
+		 * @param action
+		 */
 		setUser: (state, action: PayloadAction<IUser>) => {
 			const { username, token } = action.payload;
 			state.username = username;
 			state.token = token;
 		},
+		/**
+		 * Log user out
+		 * @param state
+		 */
 		signOut: (state) => {
 			sessionStorage.clear();
 			state.username = "";

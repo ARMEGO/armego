@@ -9,12 +9,27 @@ const initialState: IEmployeeReviews = {
 	reviews: [],
 };
 
+/**
+ * redux slice to add, update or delete employee review
+ */
 export const employeeReviewsSlice = createSlice({
 	name: "employeeReviews",
 	initialState,
 	reducers: {
-		addEmployeeReviews: (state, action: PayloadAction<IEmployeeReviews>) =>
+		/**
+		 * Set whole state with employee and reviews
+		 * @param _state
+		 * @param action
+		 * @returns payload
+		 */
+		addEmployeeReviews: (_state, action: PayloadAction<IEmployeeReviews>) =>
 			action.payload,
+		/**
+		 * Add employee review.
+		 * TODO: Avoid generating id here. Server handles this
+		 * @param state
+		 * @param action
+		 */
 		addEmployeeReview: (state, action: PayloadAction<IReview>) => {
 			const review = action.payload;
 			review.id = (Math.random() + 1).toString(36).substring(7);
@@ -34,6 +49,11 @@ export const employeeReviewsSlice = createSlice({
 				};
 			});
 		},
+		/**
+		 * Ignore deleted user
+		 * @param state
+		 * @param action
+		 */
 		removeEmployeeReview: (state, action: PayloadAction<string>) => {
 			state.reviews = state.reviews.filter(
 				(review) => review.id !== action.payload,
@@ -50,7 +70,12 @@ export const {
 	removeEmployeeReview,
 } = employeeReviewsSlice.actions;
 
-// selector for reviews
+/**
+ * Find review by id
+ * @param state
+ * @param id
+ * @returns selected employee review
+ */
 export const selectReviewById = (state: RootState, id: string) => {
 	const review = state.employeeReviews.reviews.find(
 		(review) => review.id === id,

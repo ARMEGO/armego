@@ -7,10 +7,4 @@ export enum Path {
 	HOME = "/",
 	EMPLOYEES = "/employees",
 	EMPLOYEE = "/employees/:id",
-	PROFILE = "/profile",
-	RESET_PASSWORD = "/reset-password",
-	ADDRESS = "/address",
-	REVIEW_ORDER = "/review-order",
-	WARDROPBE = "/wardrobe",
-	ITEM_CREATE = "/item/create",
 }

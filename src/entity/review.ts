@@ -5,6 +5,9 @@ export interface IReview {
 	reviewedBy: string;
 }
 
+/**
+ * Define contract requesting review(by admin)
+ */
 export interface IGiveReview extends IReview {
 	owner: string;
 	assignedBy: string;

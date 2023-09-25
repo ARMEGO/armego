@@ -66,6 +66,11 @@ type IProps = {
 	};
 };
 
+/**
+ * Employee reviews and option for admin to add, update review and assign users to review
+ * @param param0
+ * @returns list of reviews of an employee
+ */
 const Reviews: FC<IProps> = ({ params }) => {
 	const id = params.id.split("%")[0];
 	const employee = useAppSelector((state) => selectEmployeeById(state, id));
@@ -85,7 +90,7 @@ const Reviews: FC<IProps> = ({ params }) => {
 	const fetchReviews = useCallback(async () => {
 		const response: IReview[] = await getDataById(
 			endpoint.employees,
-			employee?.username,
+			employee?.username, // TODO: Handle this properly
 		);
 		dispatch(addEmployeeReviews({ employee, reviews: response || [] }));
 	}, []);

@@ -54,6 +54,10 @@ const dummyData = () => {
 	return dummy;
 };
 
+/**
+ * List of reviews and option to give reviw
+ * @returns list of reviews requested
+ */
 const ReviewRequests = () => {
 	const user = useAppSelector((state) => state.user);
 	const [review, setReview] = useState<IGiveReview>(emptyReview);
