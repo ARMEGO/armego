@@ -1,5 +1,4 @@
-import { randomString } from "../../common";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "primereact/button";
 import { Rating } from "primereact/rating";
 import { styled } from "styled-components";
@@ -8,6 +7,8 @@ import { IGiveReview } from "../../entity/review";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { InputTextarea } from "primereact/inputtextarea";
 import { addReview, addReviews } from "../../store/reviewRequestsSlice";
+import { endpoint, getDataById, updateDataById } from "../../api";
+import { updateEmployeeReview } from "../../store/employeeReviewsSlice";
 
 const Main = styled.main`
     padding: 16px;
@@ -32,26 +33,10 @@ const emptyReview = {
 	id: "",
 	rating: 0,
 	comments: "",
-	reviewedBy: "",
+	reviewed_by: "",
 	owner: "",
-	assignedBy: "admin",
+	assigned_by: "admin",
 	assignedOn: new Date(),
-};
-
-const dummyData = () => {
-	let dummy = [];
-	for (let i = 0; i < 50; i++) {
-		dummy.push({
-			id: randomString(),
-			comments: "",
-			reviewedBy: "",
-			rating: 0,
-			owner: randomString(),
-			assignedBy: "admin",
-			assignedOn: new Date(),
-		});
-	}
-	return dummy;
 };
 
 /**
@@ -67,10 +52,17 @@ const ReviewRequests = () => {
 
 	const dispatch = useAppDispatch();
 
-	useEffect(() => {
-		const dummyReviews = dummyData();
-		dispatch(addReviews(dummyReviews));
+	const fetchReviews = useCallback(async () => {
+		const response: IGiveReview[] = await getDataById(
+			endpoint.feedback,
+			user.username,
+		);
+		dispatch(addReviews(response || []));
 	}, []);
+
+	useEffect(() => {
+		fetchReviews();
+	}, [fetchReviews]);
 
 	const giveReview = (review: IGiveReview) => {
 		setReview(review);
@@ -81,11 +73,9 @@ const ReviewRequests = () => {
 		setReviewDialog(false);
 	};
 
-	const handleSubmit = (review: IGiveReview) => {
-		// if new review, add
-		// if existing review, update
-		review.reviewedBy = user.username;
-		dispatch(addReview(review));
+	const handleSubmit = async (review: IGiveReview) => {
+		const response = await updateDataById(endpoint.feedback, review.id, review);
+		if (response) dispatch(updateEmployeeReview(review));
 	};
 
 	return (
@@ -112,8 +102,8 @@ const ReviewRequests = () => {
 							{reviews.map((review, index) => (
 								<tr key={review.id + index}>
 									<td>{review.owner}</td>
-									<td>{review.assignedBy}</td>
-									<td>{review.assignedOn.toDateString()}</td>
+									<td>{review.assigned_by}</td>
+									<td>{new Date(review.assigned_on).toDateString()}</td>
 									<td>
 										<Button
 											// className="p-button-round p-button-outlined p-button-primary"

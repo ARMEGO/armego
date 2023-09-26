@@ -9,6 +9,7 @@ const baseUrl = "http://localhost:8080";
 export const endpoint = {
 	employees: "employees",
 	feedback: "feedback",
+	requestFeedback: "request-feedback",
 };
 
 /**

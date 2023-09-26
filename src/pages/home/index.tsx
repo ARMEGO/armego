@@ -76,7 +76,6 @@ function Home() {
 		// if new employee, add
 		if (employee.id === "") {
 			const response = await insertData(endpoint.employees, employee);
-			console.log(response);
 			dispatch(addEmployee(employee));
 		} // else existing employee, update
 		else dispatch(updateEmployee(employee));

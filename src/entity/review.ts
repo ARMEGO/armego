@@ -2,7 +2,7 @@ export interface IReview {
 	id: string;
 	rating: number;
 	comments: string;
-	reviewedBy: string;
+	reviewed_by: string;
 }
 
 /**
@@ -10,6 +10,6 @@ export interface IReview {
  */
 export interface IGiveReview extends IReview {
 	owner: string;
-	assignedBy: string;
-	assignedOn: Date;
+	assigned_by: string;
+	assigned_on: Date;
 }

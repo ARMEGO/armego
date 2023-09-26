@@ -1,4 +1,3 @@
-import { randomString } from "../../common";
 import { useState, useEffect, FC, useCallback } from "react";
 import { Button } from "primereact/button";
 import { Rating } from "primereact/rating";
@@ -15,6 +14,7 @@ import {
 } from "../../store/employeeReviewsSlice";
 import { MultiSelect } from "primereact/multiselect";
 import { endpoint, getDataById, insertData, updateDataById } from "../../api";
+import { IEmployee } from "../../entity/employee";
 
 const Main = styled.main`
     padding: 16px;
@@ -44,20 +44,7 @@ const emptyReview = {
 	id: "",
 	rating: 0,
 	comments: "",
-	reviewedBy: "",
-};
-
-const dummyData = () => {
-	let dummy = [];
-	for (let i = 0; i < 50; i++) {
-		dummy.push({
-			id: randomString(),
-			comments: randomString(),
-			reviewedBy: randomString(),
-			rating: 1 + i,
-		});
-	}
-	return dummy;
+	reviewed_by: "",
 };
 
 type IProps = {
@@ -111,30 +98,32 @@ const Reviews: FC<IProps> = ({ params }) => {
 	const handleSubmit = async (review: IReview) => {
 		// if new review, add
 		// if existing review, update
-		review.reviewedBy = user.username;
+		review.reviewed_by = user.username;
 		if (review.id === "") {
 			const response = await insertData(endpoint.feedback, {
 				...review,
 				owner: employee?.username,
 				reviewed_by: user.username,
 			});
-			console.log(response);
-
-			dispatch(addEmployeeReview(review));
+			if (response) dispatch(addEmployeeReview(review));
 		} else {
 			const response = await updateDataById(endpoint.feedback, review.id, {
 				...review,
 				owner: employee?.username,
 				reviewed_by: user.username,
 			});
-			console.log(response);
-
-			dispatch(updateEmployeeReview(review));
+			if (response) dispatch(updateEmployeeReview(review));
 		}
 	};
 
-	const askReview = () => {
-		console.log(selectedEmployees);
+	const askReview = async () => {
+		const assignTo = selectedEmployees.map((emp: IEmployee) => emp.username);
+		const payload = {
+			owner: employee?.username,
+			assignTo,
+		};
+		const response = await insertData(endpoint.requestFeedback, payload);
+		console.log(response);
 	};
 
 	return (
@@ -197,7 +186,7 @@ const Reviews: FC<IProps> = ({ params }) => {
 									<td>
 										<p>{review.comments}</p>
 									</td>
-									<td>{review.reviewedBy}</td>
+									<td>{review.reviewed_by}</td>
 									<td>
 										<Button
 											icon="pi pi-pencil"
